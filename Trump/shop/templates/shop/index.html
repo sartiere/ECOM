@@ -1,0 +1,199 @@
+ {% extends "shop/base.html" %}
+
+ {% block content %}
+
+    <style>
+        body {
+            background-color:rgb(213, 222, 231);
+        }
+    
+        .card-img-top {
+            width: 100%;        /* Assure que l'image prend toute la largeur de la carte */
+            height: 200px;      /* Fixe la hauteur */
+            object-fit: cover;  /* Coupe l'image pour remplir l'espace sans déformation */
+            border-top-left-radius: 15px;  /* Pour s'aligner avec les bords arrondis de la carte */
+            border-top-right-radius: 15px;
+        }
+        .search-bar {
+            margin-bottom: 50px;
+            margin-top: 30px;     /* Ajoute une marge en haut */
+        }
+        .pagination {
+            margin-top: 100px;
+        }
+        .pagination .page-link {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        .pagination .page-link:hover {
+            background-color: #218838;
+            color: white;
+        }
+    
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+    
+        .card:hover {
+            transform: translateY(-10px);
+        }
+    
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #343a40;
+        }
+    
+        .card-text {
+            color: darkgoldenrod;
+            font-weight: 500;
+        }
+    
+        .btn-warning, .btn-success {
+            border-radius: 20px;
+            padding: 5px 15px;
+        }
+    
+        .pagination .page-item.active .page-link {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+    
+        .pagination .page-link {
+            color: #28a745;
+        }
+    </style>
+
+    <div class="row search-bar">
+        <div class="col-md-12">
+            <form class="card card-sm">
+                <div class="card-body row no-gutters align-items-center">
+                    <div class="col">
+                        <input type="search" placeholder="Entrez le nom du produit que vous cherchez" name="item-name" class="form-control form-control-borderless">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-success">Recherche</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+      {% if Product_object %}
+        {% for product in Product_object %}
+        <div class="col-md-3">
+            <div class="card h-100">
+                <img src="{{ product.image }}" alt="" class="card-img-top">
+                <div class="card-body ">
+                    <div id="aa{{ product.id }}" class="card-title">{{ product.title }}</div>
+                    <div id="price{{ product.id }}" style="color: darkgoldenrod;" class="card-text">{{ product.price }}Fcfa</div>
+                    <a href="{{ product.id}}" class="btn btn-warning">Voir</a>
+                    <button id="{{ product.id }}" class="btn ted btn-success">Ajouter</button>
+                    
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+      {% else %}
+       <p class="text-center">Aucun produit disponible.</p>
+      {% endif %}
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-3 offset-md-4">
+            <ul class="pagination">
+                {% if Product_object.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ Product_object.previous_page_number }}">Précédent</a>
+                
+                    </li>
+                
+                {% endif %}
+
+                    <li class="page-item active">
+                        <a class="page-link" href="?page={{ Product_object.number }}">{{ Product_object.number }}</a>
+                    </li>
+
+                {% if Product_object.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ Product_object.next_page_number }}">Suivant</a>
+            
+                    </li>
+                
+                {% endif %}
+
+
+            </ul>
+        </div>
+    </div>
+
+
+ 
+ {% endblock %}
+
+ {% block js %}
+    <script type="text/javascript">
+        console.log('Juste pour tester');
+        if(localStorage.getItem('panier') == null){
+            var panier = {};
+        }else{
+            panier = JSON.parse(localStorage.getItem('panier'));
+        }
+        $(document).on('click', '.ted', function () {
+            console.log('ajouter');
+            var item_id = this.id.toString();
+            console.log(item_id);
+            if(panier[item_id] != undefined){ 
+                quantite = panier[item_id][0] +1;
+                panier[item_id][0] = quantite;
+                panier[item_id][2] += parseFloat(document.getElementById("price"+item_id).innerHTML)
+            }else {
+                /*panier[item_id] = 1;*/
+                quantite = 1;
+                prix = parseFloat(document.getElementById("price"+item_id).innerHTML)
+                nom =document.getElementById("aa"+item_id).innerHTML;
+                panier[item_id] = [quantite, nom, prix ];
+                /*panier [1][0]*/
+            }
+
+            console.log(panier);
+            localStorage.setItem('panier', JSON.stringify(panier));
+            document.getElementById("panier").innerHTML = "Panier("+ Object.keys(panier).length+")";
+        });
+        AfficherList(panier);
+        function AfficherList(panier){
+            var panierString = " ";
+            panierString += "<h5> Voici votre liste</h5>";
+            var index = 1;
+            for(var X in panier){
+                panierString += index;
+                panierString +=  document.getElementById('aa'+X).innerHTML + " Qte: "+ panier[X] + "</br>";
+                index += 1;
+            }
+            panierString += "<a href='/checkout' class='btn btn-primary'>Checkout</a>";
+            $('[data-toggle="popover"]').popover();
+            document.getElementById('panier').setAttribute('data-content', panierString);
+
+        }
+
+     
+    </script>
+ 
+ {% endblock%}
+
+
+
+
+
+
+
+

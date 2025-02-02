@@ -1,0 +1,145 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+
+<div class="row my-5">
+  <div class="col-md-8 offset-md-2">
+      <div class="card shadow-lg rounded-3">
+          <div class="card-header bg-success text-white text-center">
+              <h3 class="mb-0">Voici votre liste</h3>
+          </div>
+          <ul class="list-group list-group-flush" id="item-list">
+              <!-- Les articles s'afficheront ici -->
+          </ul>
+      </div>
+  </div>
+</div>
+
+<div class="row mb-5">
+  <div class="col-md-8 offset-md-2">
+      <div class="card shadow-lg rounded-3">
+          <div class="card-header bg-primary text-white text-center">
+              <h4 class="mb-0">Détails de la Commande</h4>
+          </div>
+          <div class="card-body">
+              <form method="POST">
+                  {% csrf_token %}
+                  <input type="hidden" id="items" name="items">
+
+                  <div class="form-row mb-3">
+                      <div class="form-group col-md-6">
+                          <label for="nom">Nom</label>
+                          <input type="text" id="nom" name="nom" class="form-control" placeholder="Sartiere">
+                      </div>
+                      <div class="form-group col-md-6">
+                          <label for="email">Email</label>
+                          <input type="email" id="email" name="email" class="form-control" placeholder="sartierediarra4@gmail.com">
+                      </div>
+                  </div>
+
+                  <div class="form-group mb-3">
+                      <label for="address">Adresse</label>
+                      <input type="text" id="address" name="address" class="form-control" placeholder="1234 Main St">
+                  </div>
+
+                  <div class="form-row mb-3">
+                      <div class="form-group col-md-6">
+                          <label for="ville">Ville</label>
+                          <input type="text" id="ville" name="ville" class="form-control">
+                      </div>
+                      <div class="form-group col-md-4">
+                          <label for="pays">Pays</label>
+                          <select id="pays" name="pays" class="form-control">
+                              <option selected>Côte d'Ivoire</option>
+                              <option>Cameroun</option>
+                              <option>Burkina Faso</option>
+                              <option>France</option>
+                              <option>Guinée</option>
+                              <option>Mali</option>
+                              <option>Tchad</option>
+                          </select>
+                      </div>
+                  </div>
+
+                  <div class="form-group mb-4 text-center">
+                      <label for="total">Somme totale à payer</label>
+                      <input type="text" readonly id="total" name="total" class="form-control bg-dark text-warning text-center">
+                  </div>
+
+                  <div class="text-center">
+                      <button type="submit" class="btn btn-lg btn-success px-5">Commander</button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+<style>
+  body {
+      background-color:rgb(213, 222, 231);
+  }
+  .btn-lg{
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(23, 110, 43, 0.95);
+    transition: transform 0.3s;
+  }
+
+  .card {
+      /*border: none;*/
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      padding: 20px;
+  }
+
+  .form-control:focus {
+      border-color: #28a745;
+      box-shadow: 0 0 10px rgba(110, 82, 93, 0.9);
+  }
+
+  button.btn-success:hover {
+      background-color: #218838;
+  }
+</style>
+
+
+{% endblock %}
+{% block js %}
+    <script type="text/javascript">
+        if(localStorage.getItem('panier')==null){
+            var panier = {};
+
+        }else{
+            panier = JSON.parse(localStorage.getItem('panier'));
+        }
+        var total = 0;
+        var nombre = 0;
+        for(item in panier){
+            let nom = panier[item][1];
+            let quantite = panier[item][0];
+            let prix = panier[item][2];
+            nombre += quantite;
+            total += prix
+            let itemString = `<li class="list-group-item d-flex justify-content-between align-items-center">
+              ${nom}
+              <span class="badge badge-primary badge-pill">QTE: ${quantite}</span>
+              <span class="badge badge-warning badge-pill">${prix} Fcfa</span>
+            </li>`;
+            $('#item-list').append(itemString);
+
+        }
+        let itemNombre = `<li class="list-group-item d-flex justify-content-between align-items-center">
+            <b class="bg-danger "> PRIX ET QUANTITE TOTAL </b>
+            <span class="badge badge-primary badge-pill">TQTE: ${nombre}</span>
+            <span class="badge badge-warning badge-pill">Total: ${total} Fcfa</span>
+          </li>`;
+          $('#item-list').append(itemNombre);
+          $('#total').val(total+" Fcfa");
+        
+
+        $('#items').val(JSON.stringify(panier));
+        
+    </script>
+
+{% endblock%}
