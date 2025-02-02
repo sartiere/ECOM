@@ -176,7 +176,7 @@
             var index = 1;
             for(var X in panier){
                 panierString += index;
-                panierString +=  document.getElementById('aa'+X).innerHTML + " Qte: "+ panier[X] + "</br>";
+                panierString +=  document.getElementById('aa'+X)/*.innerHTML + " Qte: "+ panier[X] + "</br>"*/;
                 index += 1;
             }
             panierString += "<a href='/checkout' class='btn btn-primary'>Checkout</a>";
